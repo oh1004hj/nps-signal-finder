@@ -26,7 +26,26 @@ if 'auto_submit' not in st.session_state:
     st.session_state.auto_submit = False
 
 # 타이틀
-st.title("🔍 NPS Signal Finder")
+st.markdown(
+    """
+    <style>
+    .signal-finder-title {
+        font-size: 48px;
+        font-weight: 800;
+        color: #2EE59D;
+        text-shadow:
+            0 0 6px rgba(46, 229, 157, 0.6),
+            0 0 12px rgba(46, 229, 157, 0.5),
+            0 0 20px rgba(46, 229, 157, 0.4);
+        margin-bottom: 4px;
+    }
+    </style>
+
+    <div class="signal-finder-title">🔍 NPS Signal Finder</div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.markdown("##### NPS 시그널 리포트 전에")
 st.caption("질문을 구조화해서 인사이트 후보를 빠르게 찾는 도구입니다.")
 
