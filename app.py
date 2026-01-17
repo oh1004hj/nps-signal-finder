@@ -80,7 +80,11 @@ question = st.text_area(
     key='question_area'
 )
 
-# 입력창 내용이 변경되면 session_state 업데이트
+# 양방향 동기화: question_input → text_area 반영
+if 'question_input' in st.session_state and st.session_state.question_input != st.session_state.get('question_area', ''):
+    st.session_state.question_area = st.session_state.question_input
+    
+# text_area → question_input 반영
 if question != st.session_state.question_input:
     st.session_state.question_input = question
 
@@ -118,9 +122,8 @@ with col_left:
     for i, q in enumerate(sample_questions):
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
-            st.session_state.question_area = q
-            st.session_state.current_question = q
             st.session_state.auto_submit = True
+            st.session_state.current_question = q  # 이 줄 추가!
             st.rerun()
     
     st.caption("💡 분석 결과 탭에서 T크루별/매장별 조회 가능")
