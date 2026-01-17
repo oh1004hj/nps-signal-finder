@@ -27,8 +27,8 @@ if 'auto_submit' not in st.session_state:
 
 # 타이틀
 st.title("🔍 NPS Signal Finder")
-st.markdown("##### NPS Signal Finder")
-st.caption("NPS 시그널 리포트 전에, 질문을 구조화해서 인사이트 후보를 빠르게 찾는 도구입니다.")
+st.markdown("##### NPS 시그널 리포트 전에")
+st.caption("질문을 구조화해서 인사이트 후보를 빠르게 찾는 도구입니다.")
 
 # 데이터 연결
 @st.cache_resource
@@ -73,22 +73,17 @@ st.markdown("### 💭 질문을 입력하세요")
 # 질문 입력 (session_state 연동)
 question = st.text_area(
     "질문",
-    value=st.session_state.question_input,
     placeholder="예: 시니어 비중이 높으면서 NPS가 낮은 T크루는? (필터 조건 ▶분석월)",
     height=100,
     label_visibility="collapsed",
-    key='question_area'
+    key='question_input'
 )
-
-# 입력창 내용이 변경되면 session_state 업데이트
-if question != st.session_state.question_input:
-    st.session_state.question_input = question
 
 # 샘플 질문 버튼
 col1, col2 = st.columns([3, 1])
 
 with col2:
-    manual_submit = st.button("🔍 분석 실행", type="primary", disabled=not question)
+    manual_submit = st.button("🔍 분석 실행", type="primary", disabled=not st.session_state.question_input)
 
 # 수동 실행 또는 자동 실행
 if manual_submit or st.session_state.auto_submit:
@@ -96,8 +91,8 @@ if manual_submit or st.session_state.auto_submit:
     if st.session_state.auto_submit:
         st.session_state.auto_submit = False
     
-    if question:
-        st.session_state.current_question = question
+    if st.session_state.question_input:
+        st.session_state.current_question = st.session_state.question_input
 
 # 샘플 질문 제공
 st.markdown("---")
