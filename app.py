@@ -9,7 +9,10 @@ from data_connector import NPSDataConnector
 from query_parser import QueryParser
 from analyzers.senior_gap import SeniorGapAnalyzer
 from analyzers.period_comparison import PeriodComparisonAnalyzer
-from analyzers.simple_filter import SimpleFilterAnalyzer
+from analyzers.simple_filter import SimpleFilterAnalyzerquestion = st.text_area(
+    "질문",
+    value=st.session_state.get('question_input', ''),  # ← get 사용
+    placeholder="예:
 from io import BytesIO
 
 # 페이지 설정
@@ -73,17 +76,22 @@ st.markdown("### 💭 질문을 입력하세요")
 # 질문 입력 (session_state 연동)
 question = st.text_area(
     "질문",
+    value=st.session_state.get('question_input', ''),
     placeholder="예: 시니어 비중이 높으면서 NPS가 낮은 T크루는? (필터 조건 ▶분석월)",
     height=100,
     label_visibility="collapsed",
-    key='question_input'
+    key='question_area'
 )
+
+# 입력창 내용이 변경되면 session_state 업데이트
+if question != st.session_state.get('question_input', ''):
+    st.session_state.question_input = question
 
 # 샘플 질문 버튼
 col1, col2 = st.columns([3, 1])
 
 with col2:
-    manual_submit = st.button("🔍 분석 실행", type="primary", disabled=not st.session_state.question_input)
+    manual_submit = st.button("🔍 분석 실행", type="primary", disabled=not question)
 
 # 수동 실행 또는 자동 실행
 if manual_submit or st.session_state.auto_submit:
@@ -91,8 +99,8 @@ if manual_submit or st.session_state.auto_submit:
     if st.session_state.auto_submit:
         st.session_state.auto_submit = False
     
-    if st.session_state.question_input:
-        st.session_state.current_question = st.session_state.question_input
+    if question:
+        st.session_state.current_question = question
 
 # 샘플 질문 제공
 st.markdown("---")
@@ -113,7 +121,6 @@ with col_left:
     for i, q in enumerate(sample_questions):
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
-            st.session_state.auto_submit = True
             st.session_state.current_question = q  # 이 줄 추가!
             st.rerun()
     
