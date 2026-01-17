@@ -32,12 +32,25 @@ st.markdown(
     .signal-finder-title {
         font-size: 48px;
         font-weight: 800;
-        color: #2EE59D;
+        color: #39FF14;               /* 더 강한 라임 네온 */
         text-shadow:
-            0 0 6px rgba(46, 229, 157, 0.6),
-            0 0 12px rgba(46, 229, 157, 0.5),
-            0 0 20px rgba(46, 229, 157, 0.4);
-        margin-bottom: 4px;
+            0 0 7px  rgba(46, 229, 157, 0.7),
+            0 0 14px rgba(46, 229, 157, 0.5),
+            0 0 24px rgba(46, 229, 157, 0.3);
+        letter-spacing: -0.5px;
+        margin-bottom: 8px;
+        text-align: center;           /* 중앙 정렬 선호 시 */
+    }
+    .subtitle {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111111;               /* 거의 검정 */
+        margin-bottom: 2px;
+    }
+    .caption-text {
+        font-size: 15px;
+        color: #444444;               /* 어두운 회색 */
+        font-weight: 400;
     }
     </style>
 
