@@ -80,13 +80,10 @@ question = st.text_area(
     key='question_area'
 )
 
-# 양방향 동기화: question_input → text_area 반영
-if 'question_input' in st.session_state and st.session_state.question_input != st.session_state.get('question_area', ''):
-    st.session_state.question_area = st.session_state.question_input
-    
-# text_area → question_input 반영
-if question != st.session_state.question_input:
-    st.session_state.question_input = question
+# 입력창 내용이 변경되면 session_state 업데이트 (버튼 클릭 직후는 제외)
+if not st.session_state.get('auto_submit', False):
+    if question != st.session_state.question_input:
+        st.session_state.question_input = question
 
 # 샘플 질문 버튼
 col1, col2 = st.columns([3, 1])
