@@ -73,16 +73,11 @@ st.markdown("### 💭 질문을 입력하세요")
 # 질문 입력 (session_state 연동)
 question = st.text_area(
     "질문",
-    value=st.session_state.question_input,
     placeholder="예: 시니어 비중이 높으면서 NPS가 낮은 T크루는? (필터 조건 ▶분석월)",
     height=100,
     label_visibility="collapsed",
-    key='question_area'
+    key='question_input'
 )
-
-# 입력창 내용이 변경되면 session_state 업데이트
-if question != st.session_state.question_input:
-    st.session_state.question_input = question
 
 # 샘플 질문 버튼
 col1, col2 = st.columns([3, 1])
