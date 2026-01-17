@@ -119,6 +119,7 @@ with col_left:
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
             st.session_state.auto_submit = True
+            st.session_state.current_question = q  # 이 줄 추가!
             st.rerun()
     
     st.caption("💡 분석 결과 탭에서 T크루별/매장별 조회 가능")
