@@ -71,13 +71,16 @@ st.markdown("---")
 st.markdown("### 💭 질문을 입력하세요")
     
 # 질문 입력 (session_state 연동)
+# 버튼 클릭시 key를 바꿔서 완전히 새로운 text_area 생성
+text_area_key = st.session_state.get('text_area_key', 'question_area_0')
+
 question = st.text_area(
     "질문",
     value=st.session_state.question_input,
     placeholder="예: 시니어 비중이 높으면서 NPS가 낮은 T크루는? (필터 조건 ▶분석월)",
     height=100,
     label_visibility="collapsed",
-    key='question_area'
+    key=text_area_key
 )
 
 # 입력창 내용이 변경되면 session_state 업데이트 (버튼 클릭 직후는 제외)
@@ -119,9 +122,9 @@ with col_left:
     for i, q in enumerate(sample_questions):
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
-            # question_area 초기화 - 다음 렌더링에서 value가 적용되도록
-            if 'question_area' in st.session_state:
-                del st.session_state.question_area
+            # text_area key를 바꿔서 완전히 새로 생성
+            import time
+            st.session_state.text_area_key = f'question_area_{time.time()}'
             st.session_state.auto_submit = True
             st.session_state.current_question = q
             st.rerun()
