@@ -119,8 +119,11 @@ with col_left:
     for i, q in enumerate(sample_questions):
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
+            # question_area 초기화 - 다음 렌더링에서 value가 적용되도록
+            if 'question_area' in st.session_state:
+                del st.session_state.question_area
             st.session_state.auto_submit = True
-            st.session_state.current_question = q  # 이 줄 추가!
+            st.session_state.current_question = q
             st.rerun()
     
     st.caption("💡 분석 결과 탭에서 T크루별/매장별 조회 가능")
