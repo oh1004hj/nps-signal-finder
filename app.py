@@ -32,14 +32,15 @@ st.markdown(
     .signal-finder-title {
         font-size: 48px;
         font-weight: 800;
-        color: #39FF14;               /* 더 강한 라임 네온 */
+        color: #000000;               /* 글씨 자체는 순수 검정 */
         text-shadow:
-            0 0 7px  rgba(46, 229, 157, 0.7),
-            0 0 14px rgba(46, 229, 157, 0.5),
-            0 0 24px rgba(46, 229, 157, 0.3);
+            0 0 8px  #39FF14;,          /* 밝은 그린 네온 1단계 */
+            0 0 16px #2EE59D,          /* 2단계 */
+            0 0 28px #2EE59D,          /* 3단계 */
+            0 0 40px rgba(46, 229, 157, 0.4);  /* 더 넓게 퍼지는 잔광 */
         letter-spacing: -0.5px;
-        margin-bottom: 8px;
-        text-align: center;           /* 중앙 정렬 선호 시 */
+        margin-bottom: 12px;
+        -webkit-font-smoothing: antialiased; /* 글씨 선명도 향상 */
     }
     .subtitle {
         font-size: 20px;
