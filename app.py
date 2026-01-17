@@ -73,11 +73,16 @@ st.markdown("### 💭 질문을 입력하세요")
 # 질문 입력 (session_state 연동)
 question = st.text_area(
     "질문",
+    value=st.session_state.question_input,
     placeholder="예: 시니어 비중이 높으면서 NPS가 낮은 T크루는? (필터 조건 ▶분석월)",
     height=100,
     label_visibility="collapsed",
-    key='question_input'
+    key='question_area'
 )
+
+# 입력창 내용이 변경되면 session_state 업데이트
+if question != st.session_state.question_input:
+    st.session_state.question_input = question
 
 # 샘플 질문 버튼
 col1, col2 = st.columns([3, 1])
@@ -113,8 +118,9 @@ with col_left:
     for i, q in enumerate(sample_questions):
         if st.button(f"💬 {q}", key=f"sample_{i}"):
             st.session_state.question_input = q
+            st.session_state.question_area = q
+            st.session_state.current_question = q
             st.session_state.auto_submit = True
-            st.session_state.current_question = q  # 이 줄 추가!
             st.rerun()
     
     st.caption("💡 분석 결과 탭에서 T크루별/매장별 조회 가능")
