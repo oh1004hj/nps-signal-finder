@@ -40,6 +40,7 @@ st.markdown(
             0 0 40px rgba(46, 229, 157, 0.4);  /* 더 넓게 퍼지는 잔광 */
         letter-spacing: -0.5px;
         margin-bottom: 12px;
+        text-align: center;
         -webkit-font-smoothing: antialiased; /* 글씨 선명도 향상 */
     }
     .subtitle {
@@ -55,7 +56,7 @@ st.markdown(
     }
     </style>
 
-    <div class="signal-finder-title">🔍 NPS Signal Finder</div>
+    <div class="signal-finder-title">NPS Signal Finder 🔍</div>
     """,
     unsafe_allow_html=True
 )
