@@ -261,7 +261,7 @@ class SimpleFilterAnalyzer:
                 # 동점자 없음 - 1명만 표시
                 worst_tcrew = worst_tcrews.iloc[0]
                 insights.append(
-                    f"📌 {worst_tcrew['담당자']}, ({worst_tcrew['매장명']})의 NPS가 "
+                    f"📌 {worst_tcrew['담당자']} ({worst_tcrew['매장명']})의 NPS가 "
                     f"{worst_tcrew['NPS(%)']}로 가장 낮습니다."
                 )
             else:
@@ -269,7 +269,7 @@ class SimpleFilterAnalyzer:
                 worst_tcrew = worst_tcrews.iloc[0]
                 others_count = len(worst_tcrews) - 1
                 insights.append(
-                    f"📌 {worst_tcrew['담당자']}, ({worst_tcrew['매장명']}) "
+                    f"📌 {worst_tcrew['담당자']} ({worst_tcrew['매장명']}) "
                     f"외 {others_count}명의 NPS가 {worst_tcrew['NPS(%)']}로 가장 낮습니다."
                 )
             
