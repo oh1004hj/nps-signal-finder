@@ -1,3 +1,4 @@
+
 """
 단순 필터링 분석기
 NPS, 응답수 등 기본 조건만 있는 단순 필터링 질문 처리
@@ -246,12 +247,31 @@ class SimpleFilterAnalyzer:
         insights = []
         
         if len(result_tcrew) > 0:
-            # 최저 NPS 담당자
-            worst_tcrew = result_tcrew.iloc[0]
-            insights.append(
-                f"📌 {worst_tcrew['담당자']} ({worst_tcrew['마케팅팀명']})의 NPS가 "
-                f"{worst_tcrew['NPS(%)']}로 가장 낮습니다."
-            )
+            # 최저 NPS 담당자 (NPS 기준으로 실제 최저값 찾기)
+            result_tcrew_temp = result_tcrew.copy()
+            result_tcrew_temp['NPS_numeric'] = result_tcrew_temp['NPS(%)'].str.rstrip('%').astype(float)
+            
+            # 최저 NPS값 찾기
+            min_nps = result_tcrew_temp['NPS_numeric'].min()
+            
+            # 최저 NPS와 같은 값을 가진 모든 T크루 찾기
+            worst_tcrews = result_tcrew_temp[result_tcrew_temp['NPS_numeric'] == min_nps]
+            
+            if len(worst_tcrews) == 1:
+                # 동점자 없음 - 1명만 표시
+                worst_tcrew = worst_tcrews.iloc[0]
+                insights.append(
+                    f"📌 {worst_tcrew['담당자']}, ({worst_tcrew['매장명']})의 NPS가 "
+                    f"{worst_tcrew['NPS(%)']}로 가장 낮습니다."
+                )
+            else:
+                # 동점자 있음 - 첫 번째 + 나머지 인원수 표시
+                worst_tcrew = worst_tcrews.iloc[0]
+                others_count = len(worst_tcrews) - 1
+                insights.append(
+                    f"📌 {worst_tcrew['담당자']}, ({worst_tcrew['매장명']}) "
+                    f"외 {others_count}명의 NPS가 {worst_tcrew['NPS(%)']}로 가장 낮습니다."
+                )
             
             # NPS 범위
             if len(nps_values) > 0:
@@ -260,11 +280,30 @@ class SimpleFilterAnalyzer:
                 insights.append(f"📊 NPS 범위: {nps_min}% ~ {nps_max}% (편차 {nps_max - nps_min}%p)")
         
         if len(result_store) > 0:
-            # 최저 NPS 매장
-            worst_store = result_store.iloc[0]
-            insights.append(
-                f"🏪 {worst_store['매장명']} ({worst_store['대리점명']})의 NPS가 "
-                f"{worst_store['NPS(%)']}%로 가장 낮습니다."
-            )
+            # 최저 NPS 매장 (NPS 기준으로 실제 최저값 찾기)
+            result_store_temp = result_store.copy()
+            result_store_temp['NPS_numeric'] = result_store_temp['NPS(%)'].str.rstrip('%').astype(float)
+            
+            # 최저 NPS값 찾기
+            min_nps = result_store_temp['NPS_numeric'].min()
+            
+            # 최저 NPS와 같은 값을 가진 모든 매장 찾기
+            worst_stores = result_store_temp[result_store_temp['NPS_numeric'] == min_nps]
+            
+            if len(worst_stores) == 1:
+                # 동점 매장 없음 - 1개만 표시
+                worst_store = worst_stores.iloc[0]
+                insights.append(
+                    f"🏪 {worst_store['매장명']}의 NPS가 "
+                    f"{worst_store['NPS(%)']}로 가장 낮습니다."
+                )
+            else:
+                # 동점 매장 있음 - 첫 번째 + 나머지 개수 표시
+                worst_store = worst_stores.iloc[0]
+                others_count = len(worst_stores) - 1
+                insights.append(
+                    f"🏪 {worst_store['매장명']} "
+                    f"외 {others_count}개 매장의 NPS가 {worst_store['NPS(%)']}로 가장 낮습니다."
+                )
         
         return insights
