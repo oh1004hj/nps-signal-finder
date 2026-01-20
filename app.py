@@ -64,14 +64,6 @@ st.markdown(
 st.markdown("##### NPS 시그널 리포트 전에")
 st.caption("질문을 구조화해서 인사이트 후보를 빠르게 찾는 도구입니다.")
 
-# 데이터 기간 정보 추가 (회색, caption과 같은 사이즈)
-if 'cached_summary' in st.session_state and st.session_state.cached_summary:
-    summary = st.session_state.cached_summary
-    # 데이터 기간과 총 건수 추출
-    data_period = summary.get('데이터 기간', 'N/A')
-    total_count = summary.get('총 데이터 수', 'N/A')
-    st.caption(f"데이터 기간: {data_period} (총 {total_count}건)")
-
 # 데이터 연결
 @st.cache_resource
 def get_connector():
@@ -91,36 +83,39 @@ def to_excel(df):
         df.to_excel(writer, index=False, sheet_name='분석결과')
     return output.getvalue()
 
-# 데이터 자동 로드 함수 추가
-@st.cache_data(ttl=3600)  # 1시간 캐시
-def load_data_once():
-    """앱 시작 시 한 번만 데이터 로드"""
-    connector = NPSDataConnector()
-    df = connector.load_raw_data()
+# 데이터 자동 로드 함수
+@st.cache_data(ttl=3600)
+def load_initial_data():
+    """앱 시작 시 데이터 자동 로드 (1시간 캐시)"""
+    connector = get_connector()
     summary = connector.get_data_summary()
-    return df, summary
+    return summary
 
-# 앱 시작 시 자동으로 데이터 로드
-if 'data_loaded' not in st.session_state:
-    with st.spinner("📊 데이터를 불러오는 중..."):
-        df_cached, summary_cached = load_data_once()
-        st.session_state.data_loaded = True
-        st.session_state.cached_summary = summary_cached
+# 앱 시작 시 자동으로 데이터 로드 (조용히 백그라운드에서)
+if 'data_summary' not in st.session_state:
+    st.session_state.data_summary = load_initial_data()
+
+# 데이터 기간 정보 표시 (회색 텍스트)
+if st.session_state.data_summary:
+    data_period = st.session_state.data_summary.get('데이터 기간', 'N/A')
+    total_count = st.session_state.data_summary.get('총 데이터 수', 'N/A')
+    st.caption(f"데이터 기간: {data_period} (총 {total_count}건)")
 
 # 사이드바 - 데이터 정보를 expander로 숨김
 with st.sidebar:
     st.header("⚙️ 설정")
     
-    # 데이터 새로고침 버튼
     if st.button("🔄 데이터 새로고침"):
         st.cache_data.clear()
-        st.session_state.data_loaded = False
+        st.cache_resource.clear()
+        if 'data_summary' in st.session_state:
+            del st.session_state.data_summary
         st.rerun()
     
-    # 데이터 정보는 expander로 숨김 (필요할 때만 펼쳐보기)
+    # 데이터 상세 정보는 expander로 숨김
     with st.expander("📊 데이터 상세 정보"):
-        if 'cached_summary' in st.session_state and st.session_state.cached_summary:
-            for key, value in st.session_state.cached_summary.items():
+        if st.session_state.data_summary:
+            for key, value in st.session_state.data_summary.items():
                 st.metric(key, value)
 
 # 메인 영역
