@@ -108,8 +108,9 @@ with st.sidebar:
     if st.button("🔄 데이터 새로고침"):
         st.cache_data.clear()
         st.cache_resource.clear()
-        if 'data_summary' in st.session_state:
-            del st.session_state.data_summary
+        # 모든 세션 상태 초기화
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
     
     # 데이터 상세 정보는 expander로 숨김
