@@ -65,16 +65,31 @@ st.markdown("##### NPS 시그널 리포트 전에")
 st.caption("질문을 구조화해서 인사이트 후보를 빠르게 찾는 도구입니다.")
 
 # 데이터 연결
-@st.cache_resource
+@st.cache_data(ttl=300, show_spinner=False)   # 5분마다 자동 갱신
 def get_connector():
     return NPSDataConnector()
 
-@st.cache_resource
+@st.cache_data(ttl=300, show_spinner=False)
 def get_parser():
     return QueryParser()
 
-connector = get_connector()
-parser = get_parser()
+# 캐시를 강제로 무시하고 최신 데이터 로드하도록 도와주는 함수
+def force_refresh_connector():
+    st.cache_data.clear()           # 모든 cache_data 지우기 (강력)
+    # 또는 더 정밀하게 하려면 아래처럼
+    # get_connector.clear()
+    # get_parser.clear()
+    return get_connector(), get_parser()
+
+# 앱 시작 시 또는 필요할 때 강제 갱신
+if 'connector' not in st.session_state or st.session_state.get('need_refresh', True):
+    connector, parser = force_refresh_connector()
+    st.session_state.connector = connector
+    st.session_state.parser = parser
+    st.session_state.need_refresh = False
+else:
+    connector = st.session_state.connector
+    parser = st.session_state.parser
 
 # 엑셀 변환 함수
 def to_excel(df):
@@ -83,41 +98,34 @@ def to_excel(df):
         df.to_excel(writer, index=False, sheet_name='분석결과')
     return output.getvalue()
 
-# 데이터 자동 로드 함수
-@st.cache_data(ttl=3600)
-def load_initial_data():
-    """앱 시작 시 데이터 자동 로드 (1시간 캐시)"""
-    connector = get_connector()
-    summary = connector.get_data_summary()
-    return summary
-
-# 앱 시작 시 자동으로 데이터 로드 (조용히 백그라운드에서)
-if 'data_summary' not in st.session_state:
-    st.session_state.data_summary = load_initial_data()
-
-# 데이터 기간 정보 표시 (회색 텍스트)
-if st.session_state.data_summary:
-    data_period = st.session_state.data_summary.get('데이터 기간', 'N/A')
-    total_count = st.session_state.data_summary.get('총 데이터 수', 'N/A')
-    st.caption(f"데이터 기간: {data_period} (총 {total_count}건)")
-
-# 사이드바 - 데이터 정보를 expander로 숨김
+# 사이드바
 with st.sidebar:
-    st.header("⚙️ 설정")
+    st.header("설정")
     
-    if st.button("🔄 데이터 새로고침"):
-        st.cache_data.clear()
-        st.cache_resource.clear()
-        # 모든 세션 상태 초기화
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+    # ────────────────────────────────────────────────
+    # 아주 간단한 데이터 기간 요약만 회색 작은 글씨로
+    # ────────────────────────────────────────────────
+    try:
+        df = connector.load_raw_data()  # 또는 이미 캐싱된 데이터 사용
+        if df is not None and not df.empty:
+            df['처리일_dt'] = pd.to_datetime(df['처리일'], format='%Y%m%d', errors='coerce')
+            start_date = df['처리일_dt'].min().strftime('%Y-%m-%d')
+            end_date = df['처리일_dt'].max().strftime('%Y-%m-%d')
+            total_count = len(df)
+            
+            st.caption(
+                f"데이터 기간: {start_date} ~ {end_date}  \n"
+                f"(총 {total_count:,}건)",
+                help="최신 데이터 기준으로 자동 계산됩니다"
+            )
+    except:
+        st.caption("데이터 기간 정보를 불러올 수 없습니다", 
+                  help="데이터 로드 중 오류가 발생했습니다")
     
-    # 데이터 상세 정보는 expander로 숨김
-    with st.expander("📊 데이터 상세 정보"):
-        if st.session_state.data_summary:
-            for key, value in st.session_state.data_summary.items():
-                st.metric(key, value)
+    st.markdown("---")
+    
+    # 나머지 사이드바 메뉴는 그대로 유지 (필터 관련 설정 등)
+    # 필요하면 여기에 추가 설정 넣기
 
 # 메인 영역
 st.markdown("---")
@@ -404,8 +412,8 @@ if hasattr(st.session_state, 'current_question'):
                     
     # 분석 실행 (실시간 필터 적용)
     with st.spinner("📊 데이터 분석 중..."):
-        # 캐시된 데이터 사용
-        df, _ = load_data_once()
+        # 데이터 로드
+        df = connector.load_raw_data()
         
         if df is not None:
             # 물리적 데이터 필터링 (분석월, 팀, 대리점명, 매장명)
